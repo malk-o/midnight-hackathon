@@ -5,23 +5,15 @@
 // be built and demoed end-to-end before the real Midnight/Compact proof
 // generation is wired in.
 //
-// TODO (once Compact toolchain is set up): replace `evaluateInJs` below with
-// an actual call to the compiled `guardian.compact` circuit via the Midnight
-// JS SDK, passing `category`/`amount`/`tier` as public inputs and
-// `reputation_score` as a private input. The rest of this file's shape
-// (checkGuardrails' signature and return value) should stay the same, so
-// nothing else needs to change.
+// Reputation now grows from approved actions (mirrors reputationByUser in
+// contracts/guardian.compact) instead of being a fixed per-user constant.
 
-// Mock reputation store: userId -> private score.
-// In the real version this would be built from a user's actual private
-// history, not hardcoded like this.
 const MOCK_REPUTATION = {
   "demo-user": 65,
   "new-user": 5,
   "trusted-user": 250,
 };
 
-// Policy tables — mirror contracts/guardian.compact
 const CATEGORY_LIMITS = {
   1: { travel: 100, food: 30, software: 50, other: 50 },
   2: { travel: 500, food: 100, software: 300, other: 200 },
@@ -29,6 +21,7 @@ const CATEGORY_LIMITS = {
 };
 
 const TIER_THRESHOLDS = { 1: 0, 2: 50, 3: 200 };
+const REPUTATION_BUMP = 5;
 
 export async function checkGuardrails(action, userId) {
   const { category, amount, tier_requested } = action;
@@ -43,13 +36,14 @@ export async function checkGuardrails(action, userId) {
     reputationScore,
   });
 
+  if (approved) {
+    MOCK_REPUTATION[userId] = reputationScore + REPUTATION_BUMP;
+  }
+
   return {
     approved,
     reason,
     tier,
-    // Notice: we return whether reputation passed, NOT the score itself.
-    // That's the property the real ZK proof will actually enforce —
-    // here we're just faking that same information boundary in JS.
     reputationCheckPassed: reputationScore >= TIER_THRESHOLDS[tier],
   };
 }

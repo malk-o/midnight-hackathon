@@ -41,6 +41,15 @@ const logger = pino({
 const TRAVEL = 0;
 let counter = 0;
 
+function userIdBytes(id: string): Uint8Array {
+  const encoder = new TextEncoder();
+  const bytes = new Uint8Array(32);
+  bytes.set(encoder.encode(id).slice(0, 32));
+  return bytes;
+}
+const ALICE = userIdBytes('alice');
+const BOB = userIdBytes('bob');
+
 describe('Guardian Contract (local)', () => {
   let wallet: MidnightWalletProvider;
   let providers: HelloWorldProviders;
@@ -102,7 +111,7 @@ describe('Guardian Contract (local)', () => {
       contractAddress: address,
       privateStateId,
       circuitId: 'checkGuardrails',
-      args: [TRAVEL, 80n, 1n],
+      args: [ALICE, TRAVEL, 80n, 1n],
     });
 
     const state = await queryLedger(address);
@@ -119,7 +128,7 @@ describe('Guardian Contract (local)', () => {
       contractAddress: address,
       privateStateId,
       circuitId: 'checkGuardrails',
-      args: [TRAVEL, 1500n, 3n],
+      args: [ALICE, TRAVEL, 1500n, 3n],
     });
 
     const state = await queryLedger(address);
@@ -134,10 +143,48 @@ describe('Guardian Contract (local)', () => {
       contractAddress: address,
       privateStateId,
       circuitId: 'checkGuardrails',
-      args: [TRAVEL, 1500n, 3n],
+      args: [BOB, TRAVEL, 1500n, 3n],
     });
 
     const state = await queryLedger(address);
+    expect(state.lastApproved).toEqual(true);
+  });
+
+  it('grows reputation from approved actions until a previously-blocked spend clears the gate', async () => {
+    const { address, privateStateId } = await deployWithReputation(0n);
+    const carol = userIdBytes('carol');
+
+    // Blocked initially — reputation (0 base + 0 earned) is below tier-3 threshold (200)
+    await (submitCallTx<Contract<GuardianPrivateState>, 'checkGuardrails'>)(providers, {
+      compiledContract: CompiledGuardianContract,
+      contractAddress: address,
+      privateStateId,
+      circuitId: 'checkGuardrails',
+      args: [carol, TRAVEL, 1500n, 3n],
+    });
+    let state = await queryLedger(address);
+    expect(state.lastApproved).toEqual(false);
+
+    // Record 40 small approved actions, +5 reputation each = +200 earned
+    for (let i = 0; i < 40; i++) {
+      await (submitCallTx<Contract<GuardianPrivateState>, 'recordApprovedAction'>)(providers, {
+        compiledContract: CompiledGuardianContract,
+        contractAddress: address,
+        privateStateId,
+        circuitId: 'recordApprovedAction',
+        args: [carol, TRAVEL, 50n],
+      });
+    }
+
+    // Now the same tier-3 spend should clear the gate (0 base + 200 earned >= 200 threshold)
+    await (submitCallTx<Contract<GuardianPrivateState>, 'checkGuardrails'>)(providers, {
+      compiledContract: CompiledGuardianContract,
+      contractAddress: address,
+      privateStateId,
+      circuitId: 'checkGuardrails',
+      args: [carol, TRAVEL, 1500n, 3n],
+    });
+    state = await queryLedger(address);
     expect(state.lastApproved).toEqual(true);
   });
 });

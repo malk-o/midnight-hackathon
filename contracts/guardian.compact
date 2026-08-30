@@ -1,5 +1,7 @@
 pragma language_version 0.23;
 
+import CompactStandardLibrary;
+
 enum Category { travel, food, software, other }
 
 witness reputationScore(): Uint<32>;
@@ -35,16 +37,17 @@ circuit tierThreshold(tier: Uint<8>): Uint<32> {
   return 200;
 }
 
-export circuit checkGuardrails(category: Category, amount: Uint<32>, tier: Uint<8>): Boolean {
+export circuit checkGuardrails(userId: Bytes<32>, category: Category, amount: Uint<32>, tier: Uint<8>): Boolean {
   const limit = categoryLimit(category, tier);
   const withinPolicy = amount <= limit;
 
-  const rep = reputationScore();
+  const uid = disclose(userId);
+  const earned = reputationByUser.member(uid) ? reputationByUser.lookup(uid) : 0;
+  const rep = reputationScore() + earned;
   const threshold = tierThreshold(tier);
   const reputationOk = rep >= threshold;
 
   const approved = withinPolicy && reputationOk;
-
   const approvedDisclosed = disclose(approved);
 
   lastApproved = approvedDisclosed;
@@ -56,7 +59,8 @@ export circuit checkGuardrails(category: Category, amount: Uint<32>, tier: Uint<
 }
 
 export circuit recordApprovedAction(userId: Bytes<32>, category: Category, amount: Uint<32>): [] {
-  const current = reputationByUser.member(userId) ? reputationByUser.lookup(userId) : 0;
-  const bump = 5; // flat increment per approved action for now — keep it simple
-  reputationByUser.insert(userId, current + bump);
+  const uid = disclose(userId);
+  const current = reputationByUser.member(uid) ? reputationByUser.lookup(uid) : 0;
+  const bump = 5;
+  reputationByUser.insert(uid, disclose((current + bump) as Uint<32>));
 }
