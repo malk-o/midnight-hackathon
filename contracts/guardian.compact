@@ -8,6 +8,7 @@ export ledger lastApproved: Boolean;
 export ledger lastCategory: Category;
 export ledger lastAmount: Uint<32>;
 export ledger lastTier: Uint<8>;
+export ledger reputationByUser: Map<Bytes<32>, Uint<32>>;
 
 circuit categoryLimit(category: Category, tier: Uint<8>): Uint<32> {
   if (tier == 1) {
@@ -52,4 +53,10 @@ export circuit checkGuardrails(category: Category, amount: Uint<32>, tier: Uint<
   lastTier = disclose(tier);
 
   return approvedDisclosed;
+}
+
+export circuit recordApprovedAction(userId: Bytes<32>, category: Category, amount: Uint<32>): [] {
+  const current = reputationByUser.member(userId) ? reputationByUser.lookup(userId) : 0;
+  const bump = 5; // flat increment per approved action for now — keep it simple
+  reputationByUser.insert(userId, current + bump);
 }
