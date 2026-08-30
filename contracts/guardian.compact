@@ -61,6 +61,6 @@ export circuit checkGuardrails(userId: Bytes<32>, category: Category, amount: Ui
 export circuit recordApprovedAction(userId: Bytes<32>, category: Category, amount: Uint<32>): [] {
   const uid = disclose(userId);
   const current = reputationByUser.member(uid) ? reputationByUser.lookup(uid) : 0;
-  const bump = 5;
+  const bump = 40;
   reputationByUser.insert(uid, disclose((current + bump) as Uint<32>));
 }

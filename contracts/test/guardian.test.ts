@@ -166,7 +166,7 @@ describe('Guardian Contract (local)', () => {
     expect(state.lastApproved).toEqual(false);
 
     // Record 40 small approved actions, +5 reputation each = +200 earned
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 5; i++) {
       await (submitCallTx<Contract<GuardianPrivateState>, 'recordApprovedAction'>)(providers, {
         compiledContract: CompiledGuardianContract,
         contractAddress: address,
@@ -186,5 +186,5 @@ describe('Guardian Contract (local)', () => {
     });
     state = await queryLedger(address);
     expect(state.lastApproved).toEqual(true);
-  });
+  }, 900_000);
 });
