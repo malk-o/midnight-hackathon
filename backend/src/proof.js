@@ -19,7 +19,7 @@ const MOCK_REPUTATION = {
   "trusted-user": 250,
 };
 
-const REPUTATION_BUMP_ON_APPROVAL = 5;
+const REPUTATION_BUMP_ON_APPROVAL = 50;
 
 // Policy tables — mirror contracts/guardian.compact
 const CATEGORY_LIMITS = {
