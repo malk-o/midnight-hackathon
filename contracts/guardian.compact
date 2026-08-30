@@ -1,51 +1,55 @@
-// guardian.compact
-//
-// NOTE: This is a starting sketch of the contract LOGIC, not guaranteed-correct
-// Compact syntax. Compact's exact syntax may have evolved — treat this as the
-// blueprint to translate once you've gone through the "hello world" example
-// from Midnight Academy / the workshop. Keep the structure, fix the syntax
-// against real docs/examples.
-//
-// Two checks, both must pass for an action to be approved:
-//   1. Spending policy: amount <= limit(category, tier)
-//   2. Reputation gate: private reputation_score >= threshold(tier)
-//      (score itself is a PRIVATE input — never revealed, only the
-//       pass/fail of the comparison is exposed)
+pragma language_version 0.23;
 
-// --- Public inputs (visible to anyone verifying the proof) ---
-// category:      string   e.g. "travel", "food", "software"
-// amount:        number   requested spend amount
-// tier:          number   spending tier the user is requesting (1, 2, 3...)
+enum Category { travel, food, software, other }
 
-// --- Private inputs (known only to the user / prover, never revealed) ---
-// reputation_score: number   the user's actual private reputation score
+witness reputationScore(): Uint<32>;
 
-// --- Policy tables (hardcode a simple version for the demo) ---
-// category_limits[tier][category] -> max amount allowed
-// tier_thresholds[tier]           -> minimum reputation_score required
+export ledger lastApproved: Boolean;
+export ledger lastCategory: Category;
+export ledger lastAmount: Uint<32>;
+export ledger lastTier: Uint<8>;
 
-circuit guardian_check(
-  public category: String,
-  public amount: Uint,
-  public tier: Uint,
-  private reputation_score: Uint
-) -> Boolean {
-
-  // 1. Spending policy check
-  let limit = lookup_limit(category, tier);
-  let within_policy = amount <= limit;
-
-  // 2. Reputation gate check (this is the private comparison —
-  //    the proof reveals ONLY true/false, never reputation_score)
-  let threshold = lookup_threshold(tier);
-  let reputation_ok = reputation_score >= threshold;
-
-  return within_policy && reputation_ok;
+circuit categoryLimit(category: Category, tier: Uint<8>): Uint<32> {
+  if (tier == 1) {
+    if (category == Category.travel) { return 100; }
+    if (category == Category.food) { return 30; }
+    if (category == Category.software) { return 50; }
+    return 50;
+  }
+  if (tier == 2) {
+    if (category == Category.travel) { return 500; }
+    if (category == Category.food) { return 100; }
+    if (category == Category.software) { return 300; }
+    return 200;
+  }
+  if (category == Category.travel) { return 2000; }
+  if (category == Category.food) { return 300; }
+  if (category == Category.software) { return 1000; }
+  return 500;
 }
 
-// Placeholder lookup tables — replace with real Compact map/array syntax
-// once confirmed. For the demo, 3 tiers is plenty:
-//
-// tier 1 (new user):      travel <= 100, food <= 30, threshold = 0
-// tier 2 (some history):  travel <= 500, food <= 100, threshold = 50
-// tier 3 (trusted):       travel <= 2000, food <= 300, threshold = 200
+circuit tierThreshold(tier: Uint<8>): Uint<32> {
+  if (tier == 1) { return 0; }
+  if (tier == 2) { return 50; }
+  return 200;
+}
+
+export circuit checkGuardrails(category: Category, amount: Uint<32>, tier: Uint<8>): Boolean {
+  const limit = categoryLimit(category, tier);
+  const withinPolicy = amount <= limit;
+
+  const rep = reputationScore();
+  const threshold = tierThreshold(tier);
+  const reputationOk = rep >= threshold;
+
+  const approved = withinPolicy && reputationOk;
+
+  const approvedDisclosed = disclose(approved);
+
+  lastApproved = approvedDisclosed;
+  lastCategory = disclose(category);
+  lastAmount = disclose(amount);
+  lastTier = disclose(tier);
+
+  return approvedDisclosed;
+}

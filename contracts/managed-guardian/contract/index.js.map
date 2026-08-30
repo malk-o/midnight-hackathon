@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../../../",
+  "sources": ["guardian.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAAA;;;;;;;;;;;;;MAoCA,AAAA,eAkBC;;;;;cAlB8B,UAAkB;cAAE,QAAgB;cAAE,MAAa;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;yCAAnD,UAAkB,+BAAE,QAAgB,+BAAE,MAAa;;;;;;;;;iDAAnD,UAAkB;iDAAE,QAAgB;iDAAE,MAAa;;;OAkBjF;;;;GACA;EAvDD;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAMA;;;;;;;;;yEAAoC;IACpC;;;;;;;;;yEAAqC;IACrC;;;;;;;;;yEAAmC;IACnC;;;;;;;;;yEAAgC;;;;;;;GA8C/B;EAnDD,AAAA,kBAAoC;;0DAApC,eAAoC;;;;;;;;;;;;;;GAAA;EAOpC,AAAA,gBAiBC,CAjBqB,UAAkB,EAAE,MAAa;yBACjD,MAAI;WACF,UAAQ;;WACR,UAAQ,eACR,UAAQ;;yBAGV,MAAI;WACF,UAAQ;;WACR,UAAQ,gBACR,UAAQ;;WAGV,UAAQ;;WACR,UAAQ,gBACR,UAAQ;GAEb;EAED,AAAA,gBAIC,CAJqB,MAAa;yBAC7B,MAAI;;yBACJ,MAAI;GAET;EAED,AAAA,kBAkBC,4BAlB8B,UAAkB,EAAE,QAAgB,EAAE,MAAa;UAC1E,OAAqC,yBAAf,UAAQ,EAAE,MAAI;UACpC,cAA8B,GAAf,QAAM,IAAI,OAAK;UAE9B,KAAuB;UACvB,WAA+B,yBAAL,MAAI;UAC9B,cAA+B,GAAhB,KAAG,IAAI,WAAS;UAE/B,UAAuC,GAA5B,cAAY,IAAI,cAAY;UAEvC,mBAAsC,GAAT,UAAQ;IAE3C;;;;;;;2HAAe,mBAAiB;;yEAApB;IACZ;;;;;;;2HAAwB,UAAQ;;yEAApB;IACZ;;;;;;;2HAAsB,QAAM;;yEAAlB;IACV;;;;;;;2HAAoB,MAAI;;yEAAhB;WAED,mBAAiB;GACzB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAhDD;qCAAA;;;;;;;;;;;0GAAoC;KAAA;IACpC;qCAAA;;;;;;;;;;;0GAAqC;KAAA;IACrC;qCAAA;;;;;;;;;;;0GAAmC;KAAA;IACnC;qCAAA;;;;;;;;;;;0GAAgC;KAAA;;;;;;;;;;;;"
+}
