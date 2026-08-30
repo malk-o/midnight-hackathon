@@ -64,6 +64,24 @@ docs/         notes, demo script, submission write-up drafts
   deployed contract on every request, so the interactive demo stays fast and
   reliable. The logic is identical to what's proven in the contract tests.
 
+## How it works
+
+![Guardian architecture](docs/guardian-architecture.svg)
+
+A plain-English task is parsed by an AI agent into a structured action
+(category, amount, tier). That action is checked by a real Compact
+zero-knowledge contract against two guardrails:
+
+- **Spending policy** (public) — is the amount within the limit for this category/tier?
+- **Reputation gate** (private) — does the user's reputation clear the tier's
+  threshold? This is proven via ZK: the score itself is a private witness and
+  is never disclosed, only the pass/fail of the comparison.
+
+Both checks are enforced on-chain, on a local Midnight devnet, with 4/4
+automated tests passing (see `contracts/test/guardian.test.ts`) — including a
+test that grows a user's reputation from repeated approved actions until a
+previously-blocked spend clears the gate.
+
 ## Local setup
 
 See `docs/SETUP.md` for step-by-step environment setup (Compact toolchain, Node, etc).

@@ -1,0 +1,73 @@
+<svg width="720" height="420" viewBox="0 0 720 420" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace">
+  <rect width="720" height="420" fill="#0d1015"/>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#8b93a0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="34" fill="#ece5d3" font-size="16" font-weight="600">Guardian — request flow</text>
+
+  <!-- User -->
+  <rect x="30" y="70" width="120" height="50" rx="4" fill="#1e242d" stroke="#2a3038"/>
+  <text x="90" y="100" fill="#e9e6dd" font-size="12" text-anchor="middle">User task</text>
+
+  <!-- Groq agent -->
+  <rect x="200" y="70" width="140" height="50" rx="4" fill="#1e242d" stroke="#2a3038"/>
+  <text x="270" y="93" fill="#e9e6dd" font-size="12" text-anchor="middle">AI agent</text>
+  <text x="270" y="108" fill="#8b93a0" font-size="10" text-anchor="middle">Groq LLM parse</text>
+
+  <!-- Express backend -->
+  <rect x="390" y="70" width="140" height="50" rx="4" fill="#1e242d" stroke="#2a3038"/>
+  <text x="460" y="93" fill="#e9e6dd" font-size="12" text-anchor="middle">Backend</text>
+  <text x="460" y="108" fill="#8b93a0" font-size="10" text-anchor="middle">Node / Express</text>
+
+  <!-- Arrows -->
+  <line x1="150" y1="95" x2="198" y2="95" stroke="#8b93a0" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="340" y1="95" x2="388" y2="95" stroke="#8b93a0" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="460" y1="120" x2="460" y2="170" stroke="#8b93a0" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Compact contract box -->
+  <rect x="330" y="180" width="260" height="150" rx="6" fill="#161b22" stroke="#b6905a" stroke-width="1.5"/>
+  <text x="460" y="204" fill="#d8ac72" font-size="12" text-anchor="middle" font-weight="600">Compact ZK contract</text>
+
+  <!-- Public side -->
+  <rect x="346" y="216" width="105" height="98" rx="4" fill="#1e242d" stroke="#2a3038"/>
+  <text x="398" y="234" fill="#e9e6dd" font-size="10" text-anchor="middle" font-weight="600">PUBLIC</text>
+  <text x="398" y="252" fill="#8b93a0" font-size="9" text-anchor="middle">category</text>
+  <text x="398" y="266" fill="#8b93a0" font-size="9" text-anchor="middle">amount</text>
+  <text x="398" y="280" fill="#8b93a0" font-size="9" text-anchor="middle">tier</text>
+  <text x="398" y="294" fill="#8b93a0" font-size="9" text-anchor="middle">approved?</text>
+
+  <!-- Private side -->
+  <rect x="459" y="216" width="105" height="98" rx="4" fill="#2a1a16" stroke="#c06a56"/>
+  <text x="511" y="234" fill="#c06a56" font-size="10" text-anchor="middle" font-weight="600">PRIVATE</text>
+  <text x="511" y="256" fill="#c06a56" font-size="9" text-anchor="middle">reputation</text>
+  <text x="511" y="270" fill="#c06a56" font-size="9" text-anchor="middle">score</text>
+  <text x="511" y="288" fill="#c06a56" font-size="8" text-anchor="middle">(witness —</text>
+  <text x="511" y="300" fill="#c06a56" font-size="8" text-anchor="middle">never disclosed)</text>
+
+  <!-- Local devnet -->
+  <rect x="30" y="180" width="260" height="150" rx="6" fill="#161b22" stroke="#2a3038"/>
+  <text x="160" y="204" fill="#8b93a0" font-size="12" text-anchor="middle" font-weight="600">Local Midnight devnet</text>
+  <rect x="46" y="222" width="70" height="36" rx="4" fill="#1e242d" stroke="#2a3038"/>
+  <text x="81" y="244" fill="#e9e6dd" font-size="9" text-anchor="middle">Proof server</text>
+  <rect x="126" y="222" width="70" height="36" rx="4" fill="#1e242d" stroke="#2a3038"/>
+  <text x="161" y="244" fill="#e9e6dd" font-size="9" text-anchor="middle">Indexer</text>
+  <rect x="206" y="222" width="66" height="36" rx="4" fill="#1e242d" stroke="#2a3038"/>
+  <text x="239" y="244" fill="#e9e6dd" font-size="9" text-anchor="middle">Node</text>
+  <text x="160" y="284" fill="#8b93a0" font-size="9" text-anchor="middle">Generates and verifies</text>
+  <text x="160" y="298" fill="#8b93a0" font-size="9" text-anchor="middle">the ZK proof locally</text>
+
+  <line x1="290" y1="255" x2="328" y2="255" stroke="#8b93a0" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Verdict back to user -->
+  <text x="620" y="95" fill="#5ea67c" font-size="11" text-anchor="middle">Verdict</text>
+  <line x1="530" y1="95" x2="600" y2="95" stroke="#5ea67c" stroke-width="1" marker-end="url(#arrow)"/>
+  <path d="M600 95 C 660 95, 660 340, 460 340" fill="none" stroke="#5ea67c" stroke-width="1" marker-end="url(#arrow)"/>
+  <text x="600" y="360" fill="#8b93a0" font-size="9" text-anchor="middle">approved / blocked</text>
+  <text x="600" y="372" fill="#8b93a0" font-size="9" text-anchor="middle">(reputation score itself</text>
+  <text x="600" y="384" fill="#8b93a0" font-size="9" text-anchor="middle">never returned)</text>
+</svg>
