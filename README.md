@@ -8,79 +8,68 @@ An AI agent takes a plain-English task ("book me a hotel for $150/night, travel
 category") and turns it into a structured action. Before the action is allowed to
 execute, it must pass two guardrails enforced by a Midnight (Compact) smart contract:
 
-1. **Spending policy** — the amount must be within the limit for that category + tier.
-2. **Reputation gate** — the user's private reputation score must be at or above the
-   threshold required for that spending tier. This is proven with a zero-knowledge
-   proof — the contract learns "yes, above threshold" without ever seeing the actual
-   score.
+1. **Spending policy** — the amount must be within the limit for that category and tier.
+2. **Reputation gate** — the user's private reputation score (built from past
+   approved actions) must be at or above the threshold required for that spending
+   tier. This is proven with a zero-knowledge proof — the contract learns
+   "yes, above threshold" without ever seeing the actual score or history.
 
-If both checks pass, the action is approved (simulated execution — no real payments
-in this build). If either fails, the agent is blocked, and the failed proof is shown
-live. That moment — the guardrail actually stopping the agent in real time — is the demo.
+If both checks pass, the action is approved. If either fails, the agent is
+blocked, live. Reputation also grows from approved actions over time, so a
+low-trust user can earn their way into higher spending tiers — without ever
+exposing their actual score.
 
 ## Why Midnight
 
 Normally, "prove your reputation is good enough" means handing over your full
 history to whoever's asking. Midnight lets the user prove *just the fact that
-matters* (score ≥ threshold) without exposing the score itself. That's the actual
-privacy story here — not just wrapping an API call in blockchain buzzwords.
-
-## Architecture
-
-```
-frontend/     simple UI: type a task, watch the agent reason, watch the guardrail decide
-backend/      Node.js/Express server: parses task via LLM (Groq), requests the guardrail check
-contracts/    Compact contract: spending policy + private reputation threshold check
-docs/         notes, demo script, submission write-up drafts
-```
-
-## Status
-
-- [x] Compact toolchain + local Midnight devnet running (WSL2 + Docker)
-- [x] Real `guardian.compact` contract written and compiling (`k=9, rows=230`)
-- [x] Spending policy check in Compact
-- [x] Reputation threshold check (private witness, ZK proof)
-- [x] Automated tests against local devnet — **3/3 passing**: approve tier-1 spend,
-      block tier-3 spend on insufficient reputation, approve tier-3 spend on
-      sufficient reputation (see `contracts/test/guardian.test.ts`)
-- [x] Backend: LLM parses task → structured action (Groq, `openai/gpt-oss-120b`)
-- [x] Backend: wires action into guardrail check, returns pass/fail + reason
-- [x] Frontend: UI showing the agent's reasoning and the guardrail verdict
-- [ ] Live backend → real deployed contract wiring (currently: backend uses a JS
-      mock of the same guardrail logic; the real contract is proven correct via
-      the automated tests above, not yet called live on every request — see
-      `docs/PROJECT_PLAN.md` for the reasoning)
-- [ ] Demo video
-- [ ] Devpost write-up
-
-## What's real vs. simulated (read this first)
-
-- **Real:** `contracts/guardian.compact` deploys to a local Midnight devnet and is
-  verified by 3 passing automated tests, proving the spending policy *and* the
-  private reputation threshold check both work correctly against real Midnight
-  infrastructure.
-- **Simulated in the live demo:** the Express backend (`backend/src/proof.js`)
-  currently evaluates the same guardrail logic in plain JS rather than calling the
-  deployed contract on every request, so the interactive demo stays fast and
-  reliable. The logic is identical to what's proven in the contract tests.
+matters* (score ≥ threshold) without exposing the score itself or the actions
+that built it. That's the actual privacy story here — not just wrapping an
+API call in blockchain buzzwords.
 
 ## How it works
 
 ![Guardian architecture](docs/guardian-architecture.svg)
 
 A plain-English task is parsed by an AI agent into a structured action
-(category, amount, tier). That action is checked by a real Compact
-zero-knowledge contract against two guardrails:
+(category, amount, tier). That action is checked against two guardrails —
+spending policy (public) and a reputation threshold (private, proven via ZK).
 
-- **Spending policy** (public) — is the amount within the limit for this category/tier?
-- **Reputation gate** (private) — does the user's reputation clear the tier's
-  threshold? This is proven via ZK: the score itself is a private witness and
-  is never disclosed, only the pass/fail of the comparison.
+## What's real vs. simulated
 
-Both checks are enforced on-chain, on a local Midnight devnet, with 4/4
-automated tests passing (see `contracts/test/guardian.test.ts`) — including a
-test that grows a user's reputation from repeated approved actions until a
-previously-blocked spend clears the gate.
+- **Real:** `contracts/guardian.compact` is an actual Compact zero-knowledge
+  smart contract, compiled and deployed to a local Midnight devnet.
+  `contracts/test/guardian.test.ts` deploys it and calls it for real —
+  **4/4 automated tests passing**, including a test where a user's reputation
+  grows from repeated approved actions until a previously-blocked spend
+  clears the gate.
+- **Simulated (for the live demo):** the running backend (`backend/src/proof.js`)
+  uses a JS mock with policy tables and thresholds confirmed identical to the
+  real contract's logic, so the live UI is fast and responsive during judging.
+  The real contract's correctness is independently proven by the automated
+  test suite, not by the live demo path.
+
+## Architecture
+
+```
+frontend/     UI: type a task, watch the agent reason, watch the guardrail decide
+backend/      Node.js server: parses task via LLM (Groq), requests the guardrail check
+contracts/    Real Compact contract + witnesses + automated devnet tests
+docs/         setup notes, architecture diagram
+```
+
+## Status
+
+- [x] Compact toolchain set up (WSL2 + Docker local devnet)
+- [x] Spending policy check in Compact
+- [x] Reputation threshold check (private witness, ZK proof)
+- [x] Dynamic reputation growth (recordApprovedAction circuit)
+- [x] Real contract deployed + tested — 4/4 passing on local devnet
+- [x] Backend: LLM parses task -> structured action
+- [x] Backend: guardrail check wired to Express endpoint
+- [x] Frontend: task input, step-by-step reasoning, verdict, public/private split, proof receipt, session ledger, side-by-side user comparison
+- [x] Demo video
+- [x] Devpost write-up
 
 ## Local setup
 
